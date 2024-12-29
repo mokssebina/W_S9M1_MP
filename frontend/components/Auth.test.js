@@ -42,29 +42,52 @@ describe('Auth component', () => {
     expect(userInput).toHaveValue('gabe')
     // ✨ type some text in the password input
     // ✨ assert that the input has the value entered
-    expect(true).toBe(false) // DELETE
+    await user.type(passInput, 'password12345')
+    expect(passInput).toHaveValue('password12345')
+    //expect(true).toBe(false) // DELETE
   })
   test('[2] Submitting form clicking button shows "Please wait..." message', async () => {
     // ✨ type whatever values on username and password inputs
     // ✨ click the Login button
     // ✨ assert that the "Please wait..." message is visible in the DOM
-    expect(true).toBe(false) // DELETE
+    let button = screen.getByText("Login")
+    await user.click(button)
+    await waitFor(() => {
+      screen.getByText("Please wait...")
+    })
+    //expect(true).toBe(false) // DELETE
   })
   test('[3] Submitting form typing [ENTER] shows "Please wait..." message', async () => {
     // ✨ type whatever values in username and password inputs
     // ✨ hit the [ENTER] key on the keyboard
     // ✨ assert that the "Please wait..." message is visible in the DOM
-    expect(true).toBe(false) // DELETE
+    await user.type(userInput, 'mokssebina')
+    await user.type(passInput, 'password12345')
+    await user.keyboard("[ENTER]")
+    await waitFor(() => {
+      screen.getByText("Please wait...")
+    })
+    //expect(true).toBe(false) // DELETE
   })
   test('[4] Submitting an empty form shows "Invalid Credentials" message', async () => {
     // ✨ submit an empty form
     // ✨ assert that the "Invalid Credentials" message eventually is visible
-    expect(true).toBe(false) // DELETE
+    await user.click(loginBtn)
+    await waitFor(() => {
+      screen.getByText("Invalid Credentials")
+    })
+    //expect(true).toBe(false) // DELETE
   })
   test('[5] Submitting incorrect credentials shows "Invalid Credentials" message', async () => {
     // ✨ type whatever username and password and submit form
     // ✨ assert that the "Invalid Credentials" message eventually is visible
-    expect(true).toBe(false) // DELETE
+    await user.type(userInput, 'mok')
+    await user.type(passInput, 'pass')
+    await user.click(loginBtn)
+    await waitFor(() => {
+      screen.getByText("Invalid Credentials")
+    })
+    //expect(true).toBe(false) // DELETE
   })
   for (const usr of registeredUsers) {
     test(`[6.${usr.id}] Logging in ${usr.username} makes the following elements render:
@@ -72,18 +95,45 @@ describe('Auth component', () => {
         - correct user info (ID, username, birth date)
         - logout button`, async () => {
       // ✨ type valid credentials and submit form
+      await user.type(userInput, `Shakira`)
+      await user.type(passInput, `Suerte1977%`)
+      await user.click(loginBtn)
       // ✨ assert that the correct welcome message is eventually visible
+      await waitFor(() => {
+        expect(screen.queryByText(`Welcome back, Shakira. We LOVE you!`)).toBeVisible()
+      })
       // ✨ assert that the correct user info appears is eventually visible
+      await waitFor(() => {
+        expect(screen.queryByText(`ID: 1, Username: Shakira, Born: 1977`)).toBeVisible()
+      })
       // ✨ assert that the logout button appears
-      expect(true).toBe(false) // DELETE
+      await waitFor(() => {
+        expect(screen.getByText("Logout")).toBeVisible()
+      })
+      //expect(true).toBe(false) // DELETE
     })
   }
   test('[7] Logging out a logged-in user displays goodbye message and renders form', async () => {
     // ✨ type valid credentials and submit
+    await user.type(userInput, `Shakira`)
+    await user.type(passInput, `Suerte1977%`)
+    await user.click(loginBtn)
     // ✨ await the welcome message
+    await waitFor(() => {
+      expect(screen.queryByText(`Welcome back, Shakira. We LOVE you!`)).toBeVisible()
+    })
     // ✨ click on the logout button (grab it by its test id)
+    let logoutBtn = screen.getByTestId('logoutBtn')
+    await user.click(logoutBtn)
     // ✨ assert that the goodbye message is eventually visible in the DOM
+    await waitFor(() => {
+      expect(screen.queryByText(`Bye! Please, come back soon.`)).toBeVisible()
+    })
     // ✨ assert that the form is visible in the DOM (select it by its test id)
-    expect(true).toBe(false) // DELETE
+    let userInputForm = screen.getByTestId('loginForm')
+    await waitFor(() => {
+      expect(userInputForm).toBeVisible()
+    })
+    //expect(true).toBe(false) // DELETE
   })
 })
